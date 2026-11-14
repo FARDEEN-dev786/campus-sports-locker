@@ -96,6 +96,10 @@ export function EquipmentCard({
           <Button variant="outline" className="w-full" disabled>
             Select a {block.requiresName} first
           </Button>
+        ) : block?.kind === "unavailable" && myHere.length > 0 ? (
+          <Button variant="outline" className="w-full" disabled>
+            You hold the last unit
+          </Button>
         ) : block?.kind === "unavailable" ? (
           <Button variant="wait" className="w-full" onClick={onWait}>
             <Bell /> {waiting ? "Waiting — we'll ping you" : "Unavailable · wait for it"}

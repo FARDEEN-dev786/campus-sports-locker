@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { CheckCircle2, Loader2, XCircle, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/lending/site-header";
@@ -14,6 +14,7 @@ import {
   acquireItem,
   equipmentQuery,
   myReservationsQuery,
+  profileQuery,
   releaseSimulation,
   semLogQuery,
   type RpcResult,
@@ -55,6 +56,7 @@ function RaceLab() {
   const { data: items } = useSuspenseQuery(equipmentQuery);
   const { data: logs } = useSuspenseQuery(semLogQuery);
   const { data: mine } = useSuspenseQuery(myReservationsQuery(user.id));
+  const { data: profile } = useQuery(profileQuery(user.id));
   useLendingRealtime(user.id);
 
   const candidates = useMemo(() => items.filter((i) => !i.requires_id), [items]);
@@ -118,7 +120,7 @@ function RaceLab() {
 
   return (
     <div className="min-h-screen">
-      <SiteHeader held={mine.length} />
+      <SiteHeader held={mine.length} name={profile?.full_name} />
       <section className="court-lines text-pitch-foreground">
         <div className="mx-auto max-w-7xl px-4 py-10">
           <div className="locker-tag opacity-70">Race lab · critical section demo</div>

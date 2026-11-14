@@ -169,15 +169,7 @@ export type Database = {
           op?: string
           sem_value?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "semaphore_log_equipment_id_fkey"
-            columns: ["equipment_id"]
-            isOneToOne: false
-            referencedRelation: "equipment"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {

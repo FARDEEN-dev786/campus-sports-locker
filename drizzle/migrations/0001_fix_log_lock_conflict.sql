@@ -1,0 +1,1 @@
+alter table public.semaphore_log drop constraint if exists semaphore_log_equipment_id_fkey;

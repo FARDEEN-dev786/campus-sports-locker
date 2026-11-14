@@ -8,6 +8,13 @@
       "when": 1794677826422,
       "tag": "0000_lending_semaphores",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794678505025,
+      "tag": "0001_fix_log_lock_conflict",
+      "breakpoints": true
     }
   ]
 }
