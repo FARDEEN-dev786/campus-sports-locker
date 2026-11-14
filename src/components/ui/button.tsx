@@ -16,6 +16,12 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        hero: "bg-accent text-accent-foreground font-semibold uppercase tracking-wider shadow-lift hover:brightness-105",
+        chalk: "bg-chalk text-pitch font-semibold uppercase tracking-wider hover:bg-chalk/90",
+        ghostChalk: "border border-chalk/40 text-pitch-foreground hover:bg-chalk/10",
+        lock: "bg-primary text-primary-foreground font-semibold uppercase tracking-wide hover:bg-primary/90",
+        wait: "border border-dashed border-status-locked bg-status-locked/15 text-foreground hover:bg-status-locked/25",
+        google: "border border-google-border bg-google text-google-foreground font-medium hover:bg-google/95",
       },
       size: {
         default: "h-9 px-4 py-2",

@@ -1,0 +1,252 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { CheckCircle2, Loader2, XCircle, Zap } from "lucide-react";
+import { toast } from "sonner";
+import { SiteHeader } from "@/components/lending/site-header";
+import { SemaphoreMonitor } from "@/components/lending/semaphore-monitor";
+import { UnitBar } from "@/components/lending/unit-bar";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { useLendingRealtime } from "@/hooks/use-lending-realtime";
+import { cn } from "@/lib/utils";
+import {
+  acquireItem,
+  equipmentQuery,
+  myReservationsQuery,
+  releaseSimulation,
+  semLogQuery,
+  type RpcResult,
+} from "@/lib/lending";
+
+export const Route = createFileRoute("/_authenticated/race-lab")({
+  head: () => ({
+    meta: [
+      { title: "Race Lab — Semaphore Simulator | LockerRoom" },
+      {
+        name: "description",
+        content: "Fire simultaneous requests from virtual students and watch the two-level semaphore pick the winners.",
+      },
+      { property: "og:title", content: "Race Lab — Semaphore Simulator" },
+      { property: "og:description", content: "See the critical section problem solved live." },
+    ],
+  }),
+  loader: async ({ context }) => {
+    await releaseSimulation().catch(() => 0);
+    await Promise.all([
+      context.queryClient.ensureQueryData(equipmentQuery),
+      context.queryClient.ensureQueryData(semLogQuery),
+      context.queryClient.ensureQueryData(myReservationsQuery(context.user.id)),
+    ]);
+  },
+  component: RaceLab,
+});
+
+interface Racer {
+  label: string;
+  res?: RpcResult;
+  ms?: number;
+  error?: string;
+}
+
+function RaceLab() {
+  const { user } = Route.useRouteContext();
+  const qc = useQueryClient();
+  const { data: items } = useSuspenseQuery(equipmentQuery);
+  const { data: logs } = useSuspenseQuery(semLogQuery);
+  const { data: mine } = useSuspenseQuery(myReservationsQuery(user.id));
+  useLendingRealtime(user.id);
+
+  const candidates = useMemo(() => items.filter((i) => !i.requires_id), [items]);
+  const [itemId, setItemId] = useState(() => candidates.find((c) => c.slug === "carrom-board")?.id ?? candidates[0]?.id);
+  const [count, setCount] = useState(5);
+  const [racers, setRacers] = useState<Racer[]>([]);
+  const [semBefore, setSemBefore] = useState<number | null>(null);
+  const [running, setRunning] = useState(false);
+  const [releaseIn, setReleaseIn] = useState<number | null>(null);
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const item = items.find((i) => i.id === itemId);
+
+  const release = async () => {
+    if (timer.current) clearInterval(timer.current);
+    setReleaseIn(null);
+    const n = await releaseSimulation().catch(() => 0);
+    if (n) toast(`Released ${n} simulated lock(s) — signal(S) × ${n}`);
+    qc.invalidateQueries({ queryKey: ["equipment"] });
+  };
+
+  useEffect(() => () => {
+    if (timer.current) clearInterval(timer.current);
+  }, []);
+
+  async function fire() {
+    if (!item) return;
+    setRunning(true);
+    setSemBefore(item.available);
+    const labels = Array.from({ length: count }, (_, i) => `Sim-Student-${i + 1}`);
+    setRacers(labels.map((label) => ({ label })));
+    // All requests leave the browser at the same instant — a real race.
+    const results = await Promise.all(
+      labels.map(async (label): Promise<Racer> => {
+        const t0 = performance.now();
+        try {
+          const res = await acquireItem(item.id, label);
+          return { label, res, ms: Math.round(performance.now() - t0) };
+        } catch (e) {
+          return { label, error: (e as Error).message, ms: Math.round(performance.now() - t0) };
+        }
+      }),
+    );
+    setRacers(results);
+    setRunning(false);
+    qc.invalidateQueries({ queryKey: ["equipment"] });
+    setReleaseIn(15);
+    timer.current = setInterval(() => {
+      setReleaseIn((s) => {
+        if (s === null) return s;
+        if (s <= 1) {
+          release();
+          return null;
+        }
+        return s - 1;
+      });
+    }, 1000);
+  }
+
+  const winners = racers.filter((r) => r.res?.status === "acquired").length;
+  const losers = racers.filter((r) => r.res && r.res.status !== "acquired").length;
+
+  return (
+    <div className="min-h-screen">
+      <SiteHeader held={mine.length} />
+      <section className="court-lines text-pitch-foreground">
+        <div className="mx-auto max-w-7xl px-4 py-10">
+          <div className="locker-tag opacity-70">Race lab · critical section demo</div>
+          <h1 className="mt-1 text-5xl font-black uppercase leading-none md:text-6xl">
+            Many hands, <span className="text-accent">one ball.</span>
+          </h1>
+          <p className="mt-3 max-w-2xl opacity-85">
+            Send requests from several virtual students at exactly the same moment. Everyone who
+            sees a free unit passes <b>Level 1</b>. At <b>Level 2</b> only one process at a time can
+            enter the critical section — whoever gets the mutex first takes the unit; the rest are
+            told the item is unavailable and must wait.
+          </p>
+        </div>
+      </section>
+
+      <main className="mx-auto grid max-w-7xl gap-8 px-4 py-8 lg:grid-cols-[1fr_380px]">
+        <div className="space-y-6">
+          <div className="rounded-lg border bg-card p-5 shadow-card">
+            <div className="locker-tag mb-3 text-muted-foreground">1 · Pick the contested item</div>
+            <div className="flex flex-wrap gap-2">
+              {candidates.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setItemId(c.id)}
+                  className={cn(
+                    "flex items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors",
+                    c.id === itemId ? "border-primary bg-primary text-primary-foreground" : "hover:bg-muted",
+                  )}
+                >
+                  <span>{c.icon}</span> {c.name}
+                  <span className="font-mono text-xs opacity-70">S={c.available}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="locker-tag mb-3 mt-6 text-muted-foreground">
+              2 · Virtual students racing: {count}
+            </div>
+            <Slider value={[count]} min={2} max={8} step={1} onValueChange={(v) => setCount(v[0] ?? 5)} className="max-w-sm" />
+
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              <Button variant="hero" size="lg" onClick={fire} disabled={running || !item || releaseIn !== null}>
+                {running ? <Loader2 className="animate-spin" /> : <Zap />} Fire {count} requests at once
+              </Button>
+              {releaseIn !== null && (
+                <Button variant="outline" onClick={release}>
+                  Release simulated locks ({releaseIn}s)
+                </Button>
+              )}
+              {item && (
+                <div className="flex min-w-[200px] flex-1 items-center gap-3">
+                  <span className="font-mono text-sm">S = {item.available}</span>
+                  <div className="flex-1">
+                    <UnitBar
+                      total={item.total}
+                      free={item.available}
+                      mine={0}
+                      lockedOthers={item.locked}
+                      borrowedOthers={item.borrowed}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {racers.length > 0 && (
+            <div className="rounded-lg border bg-card p-5 shadow-card">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h2 className="text-2xl font-extrabold uppercase">Race result</h2>
+                {!running && semBefore !== null && (
+                  <p className="font-mono text-sm text-muted-foreground">
+                    S before = {semBefore} → {winners} got a lock, {losers} must wait
+                  </p>
+                )}
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {racers.map((r) => {
+                  const won = r.res?.status === "acquired";
+                  const l1 = r.res ? (r.res.level === 1 ? "blocked" : "passed") : null;
+                  return (
+                    <div
+                      key={r.label}
+                      className={cn(
+                        "animate-slide-in rounded-md border p-3",
+                        won && "border-status-free bg-status-free/10",
+                        r.res && !won && "border-status-locked bg-status-locked/10",
+                      )}
+                    >
+                      <div className="flex items-center gap-2">
+                        {!r.res && !r.error ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : won ? (
+                          <CheckCircle2 className="size-4 text-status-free" />
+                        ) : (
+                          <XCircle className="size-4 text-destructive" />
+                        )}
+                        <span className="font-semibold">{r.label}</span>
+                        {r.ms !== undefined && (
+                          <span className="ml-auto font-mono text-xs text-muted-foreground">{r.ms} ms</span>
+                        )}
+                      </div>
+                      {r.res && (
+                        <div className="mt-2 space-y-0.5 font-mono text-xs">
+                          <div>
+                            L1: {l1 === "passed" ? "✓ passed" : "✗ blocked"} (saw S={r.res.seen})
+                          </div>
+                          {l1 === "passed" && (
+                            <div>L2: {won ? `✓ entered critical section, S → ${r.res.sem_after}` : "✗ lost the race"}</div>
+                          )}
+                          <div className="pt-1 font-sans text-sm text-foreground">
+                            {won ? "Locked for 10 minutes" : "Item unavailable currently — has to wait"}
+                          </div>
+                        </div>
+                      )}
+                      {r.error && <div className="mt-2 text-xs text-destructive">{r.error}</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <aside className="lg:sticky lg:top-20 lg:self-start">
+          <SemaphoreMonitor logs={logs} />
+        </aside>
+      </main>
+    </div>
+  );
+}
