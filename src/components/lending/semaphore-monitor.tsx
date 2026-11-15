@@ -23,9 +23,9 @@ function time(ts: string) {
 
 export function SemaphoreMonitor({ logs, className }: { logs: SemLog[]; className?: string }) {
   return (
-    <section className={cn("overflow-hidden rounded-lg bg-terminal text-terminal-foreground", className)}>
+    <section className={cn("overflow-hidden rounded bg-terminal text-terminal-foreground", className)}>
       <header className="flex items-center justify-between border-b border-terminal-line px-4 py-2">
-        <span className="font-mono text-xs uppercase tracking-widest">semaphore monitor</span>
+        <span className="font-mono text-xs">Semaphore log (wait / signal)</span>
         <span className="flex items-center gap-1.5 font-mono text-[10px] text-terminal-muted">
           <span className="size-1.5 animate-pulse rounded-full bg-status-free" /> live
         </span>
@@ -33,7 +33,7 @@ export function SemaphoreMonitor({ logs, className }: { logs: SemLog[]; classNam
       <ol className="max-h-[420px] space-y-0 overflow-y-auto px-2 py-2 font-mono text-[11px] leading-relaxed">
         {logs.length === 0 && (
           <li className="px-2 py-4 text-terminal-muted">
-            waiting for processes<span className="animate-blink">_</span>
+            no requests yet<span className="animate-blink">_</span>
           </li>
         )}
         {logs.map((l) => (

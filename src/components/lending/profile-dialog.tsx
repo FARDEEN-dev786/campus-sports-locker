@@ -27,9 +27,9 @@ export function ProfileDialog({ uid, profile }: { uid: string; profile: Profile 
     <Dialog open={needs}>
       <DialogContent onInteractOutside={(e) => e.preventDefault()} className="[&>button]:hidden">
         <DialogHeader>
-          <DialogTitle className="text-2xl uppercase">Your student card</DialogTitle>
+          <DialogTitle className="text-xl">Your details</DialogTitle>
           <DialogDescription>
-            We need your roll number once — you'll type it again to confirm each borrowing.
+            Please enter your roll number once. You will type it again to confirm each borrowing.
           </DialogDescription>
         </DialogHeader>
         <form

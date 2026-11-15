@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { SiteHeader } from "@/components/lending/site-header";
+import { SiteFooter } from "@/components/lending/site-footer";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
@@ -16,10 +18,12 @@ export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Sign in — LockerRoom" },
-      { name: "description", content: "Sign in with your student account to borrow sports equipment." },
-      { property: "og:title", content: "Sign in — LockerRoom" },
-      { property: "og:description", content: "Student sign-in for the college sports equipment store." },
+      { title: "Student Login — Sports Equipment Lending Portal, NSUT" },
+      { name: "description", content: "NSUT students log in here to borrow sports equipment from the sports room." },
+      { property: "og:title", content: "Student Login — Sports Equipment Lending Portal" },
+      { property: "og:description", content: "Student login for the NSUT sports equipment lending portal." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AuthPage,
@@ -98,83 +102,73 @@ function AuthPage() {
   }
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="court-lines hidden flex-col justify-between p-10 text-pitch-foreground lg:flex">
-        <Link to="/" className="font-display text-3xl font-black uppercase">
-          Locker<span className="text-accent">/</span>Room
-        </Link>
-        <div>
-          <h1 className="text-6xl font-black uppercase leading-[0.9]">
-            Your student card
-            <br />
-            is your <span className="text-accent">key.</span>
-          </h1>
-          <p className="mt-4 max-w-md opacity-80">
-            Every unit in the store is guarded by a semaphore. Sign in to lock up to three items for
-            10 minutes and confirm them with your roll number.
-          </p>
-        </div>
-        <div className="locker-tag opacity-60">OS mini project · process synchronization</div>
-      </div>
-
-      <div className="flex items-center justify-center p-6">
-        <div className="w-full max-w-sm">
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
+      <main className="flex flex-1 items-start justify-center px-4 py-10">
+        <div className="w-full max-w-sm rounded border bg-card p-6 shadow-card">
           {sent ? (
             <div className="space-y-3 text-center">
-              <h2 className="text-3xl font-black uppercase">Check your inbox</h2>
+              <h1 className="text-2xl font-bold">Check your email</h1>
               <p className="text-muted-foreground">
-                We sent a confirmation link to <b>{form.email}</b>. Open it, then come back to sign in.
+                We sent a confirmation link to <b>{form.email}</b>. Open it, then come back here to log in.
               </p>
               <Button variant="outline" onClick={() => setSent(false)}>
-                Back to sign in
+                Back to login
               </Button>
             </div>
           ) : (
-            <Tabs defaultValue="signin">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Sign in</TabsTrigger>
-                <TabsTrigger value="signup">Create account</TabsTrigger>
-              </TabsList>
+            <>
+              <h1 className="text-2xl font-bold">Student login</h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Use your college email. You need your roll number to confirm a borrowing.
+              </p>
+              <Tabs defaultValue="signin" className="mt-5">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="signin">Log in</TabsTrigger>
+                  <TabsTrigger value="signup">New student</TabsTrigger>
+                </TabsList>
 
-              <Button variant="google" className="mt-6 w-full" onClick={google} type="button">
-                <GoogleG /> Continue with Google
-              </Button>
-              <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-                <div className="h-px flex-1 bg-border" /> or with email <div className="h-px flex-1 bg-border" />
-              </div>
+                <Button variant="google" className="mt-5 w-full" onClick={google} type="button">
+                  <GoogleG /> Continue with Google
+                </Button>
+                <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
+                  <div className="h-px flex-1 bg-border" /> or with email <div className="h-px flex-1 bg-border" />
+                </div>
 
-              <TabsContent value="signin">
-                <form onSubmit={signIn} className="space-y-4">
-                  <Field id="si-email" label="College email" type="email" value={form.email} onChange={set("email")} />
-                  <Field id="si-pass" label="Password" type="password" value={form.password} onChange={set("password")} />
-                  <Button type="submit" variant="lock" className="w-full" disabled={busy}>
-                    {busy && <Loader2 className="animate-spin" />} Sign in
-                  </Button>
-                </form>
-              </TabsContent>
+                <TabsContent value="signin">
+                  <form onSubmit={signIn} className="space-y-4">
+                    <Field id="si-email" label="College email" type="email" value={form.email} onChange={set("email")} />
+                    <Field id="si-pass" label="Password" type="password" value={form.password} onChange={set("password")} />
+                    <Button type="submit" variant="lock" className="w-full" disabled={busy}>
+                      {busy && <Loader2 className="animate-spin" />} Log in
+                    </Button>
+                  </form>
+                </TabsContent>
 
-              <TabsContent value="signup">
-                <form onSubmit={signUp} className="space-y-4">
-                  <Field id="su-name" label="Full name" value={form.name} onChange={set("name")} />
-                  <Field id="su-roll" label="Roll number" value={form.roll} onChange={set("roll")} />
-                  <Field id="su-email" label="College email" type="email" value={form.email} onChange={set("email")} />
-                  <Field
-                    id="su-pass"
-                    label="Password (min 6)"
-                    type="password"
-                    value={form.password}
-                    onChange={set("password")}
-                    minLength={6}
-                  />
-                  <Button type="submit" variant="lock" className="w-full" disabled={busy}>
-                    {busy && <Loader2 className="animate-spin" />} Create account
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
+                <TabsContent value="signup">
+                  <form onSubmit={signUp} className="space-y-4">
+                    <Field id="su-name" label="Full name" value={form.name} onChange={set("name")} />
+                    <Field id="su-roll" label="Roll number" value={form.roll} onChange={set("roll")} />
+                    <Field id="su-email" label="College email" type="email" value={form.email} onChange={set("email")} />
+                    <Field
+                      id="su-pass"
+                      label="Password (at least 6 characters)"
+                      type="password"
+                      value={form.password}
+                      onChange={set("password")}
+                      minLength={6}
+                    />
+                    <Button type="submit" variant="lock" className="w-full" disabled={busy}>
+                      {busy && <Loader2 className="animate-spin" />} Create account
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+            </>
           )}
         </div>
-      </div>
+      </main>
+      <SiteFooter />
     </div>
   );
 }

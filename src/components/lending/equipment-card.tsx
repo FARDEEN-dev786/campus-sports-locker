@@ -44,21 +44,21 @@ export function EquipmentCard({
     <article
       key={flash}
       className={cn(
-        "group flex flex-col gap-3 rounded-lg border bg-card p-4 shadow-card transition-shadow hover:shadow-lift",
+        "flex flex-col gap-3 rounded border bg-card p-4",
         flash > 0 && "animate-lock-flash",
       )}
     >
       <div className="flex items-start gap-3">
-        <div className="flex size-12 shrink-0 items-center justify-center rounded-md bg-secondary text-2xl">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded bg-secondary text-xl">
           {item.icon}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="locker-tag text-muted-foreground">{lockerCode(item)}</div>
-          <h3 className="truncate text-xl font-bold uppercase leading-tight">{item.name}</h3>
+          <h3 className="truncate font-semibold leading-tight">{item.name}</h3>
+          <div className="text-xs text-muted-foreground">{lockerCode(item)}</div>
         </div>
         <div className="text-right">
-          <div className="font-display text-3xl font-black leading-none">{item.available}</div>
-          <div className="locker-tag text-muted-foreground">of {item.total}</div>
+          <div className="text-2xl font-bold leading-none">{item.available}</div>
+          <div className="text-xs text-muted-foreground">of {item.total} left</div>
         </div>
       </div>
 
@@ -75,7 +75,7 @@ export function EquipmentCard({
         <span className="flex items-center gap-1">
           <Lock className="size-3" /> {item.locked} locked
         </span>
-        <span>{item.borrowed} out</span>
+        <span>{item.borrowed} issued</span>
         {parent && (
           <span className="flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-foreground">
             <Link2 className="size-3" /> needs {parent.name}
@@ -86,7 +86,7 @@ export function EquipmentCard({
       <div className="mt-auto">
         {pending ? (
           <Button variant="lock" className="w-full" disabled>
-            <Loader2 className="animate-spin" /> Requesting lock…
+            <Loader2 className="animate-spin" /> Please wait…
           </Button>
         ) : block?.kind === "limit" ? (
           <Button variant="outline" className="w-full" disabled>
@@ -102,11 +102,11 @@ export function EquipmentCard({
           </Button>
         ) : block?.kind === "unavailable" ? (
           <Button variant="wait" className="w-full" onClick={onWait}>
-            <Bell /> {waiting ? "Waiting — we'll ping you" : "Unavailable · wait for it"}
+            <Bell /> {waiting ? "Waiting — you will be told" : "Not available · wait"}
           </Button>
         ) : (
           <Button variant="lock" className="w-full" onClick={onSelect}>
-            Select &amp; lock 1
+            Select
           </Button>
         )}
       </div>

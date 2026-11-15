@@ -9,14 +9,14 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * LOCKER/ROOM design system — "sports store meets OS kernel".
- * Chalk-white court, deep pitch green, whistle orange, and four status colours
- * that map 1:1 onto semaphore states (free / locked / borrowed / mine).
+ * Sports Equipment Lending Portal (NSUT) — plain college-portal look.
+ * Off-white page, navy header, and four status colours that map 1:1 onto
+ * semaphore states (free / locked / borrowed / mine).
  */
 
 @theme inline {
-  --font-display: "Big Shoulders Display", "Barlow Condensed", sans-serif;
-  --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Merriweather", Georgia, serif;
+  --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
@@ -80,47 +80,47 @@
 }
 
 :root {
-  --radius: 0.5rem;
-  --background: oklch(0.968 0.012 95);
-  --foreground: oklch(0.21 0.035 160);
-  --card: oklch(0.993 0.006 95);
-  --card-foreground: oklch(0.21 0.035 160);
-  --popover: oklch(0.993 0.006 95);
-  --popover-foreground: oklch(0.21 0.035 160);
-  --primary: oklch(0.43 0.1 158);
-  --primary-foreground: oklch(0.985 0.01 95);
-  --secondary: oklch(0.925 0.025 125);
-  --secondary-foreground: oklch(0.26 0.05 160);
-  --muted: oklch(0.935 0.012 95);
-  --muted-foreground: oklch(0.47 0.03 160);
-  --accent: oklch(0.72 0.17 52);
-  --accent-foreground: oklch(0.2 0.04 50);
-  --destructive: oklch(0.56 0.21 27);
-  --destructive-foreground: oklch(0.985 0.01 95);
-  --border: oklch(0.86 0.02 110);
-  --input: oklch(0.84 0.02 110);
-  --ring: oklch(0.43 0.1 158);
+  --radius: 0.3rem;
+  --background: oklch(0.975 0.004 250);
+  --foreground: oklch(0.22 0.02 255);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.02 255);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.02 255);
+  --primary: oklch(0.38 0.09 255);
+  --primary-foreground: oklch(0.985 0.003 250);
+  --secondary: oklch(0.94 0.012 250);
+  --secondary-foreground: oklch(0.28 0.04 255);
+  --muted: oklch(0.95 0.006 250);
+  --muted-foreground: oklch(0.48 0.02 255);
+  --accent: oklch(0.82 0.13 85);
+  --accent-foreground: oklch(0.25 0.04 70);
+  --destructive: oklch(0.55 0.2 27);
+  --destructive-foreground: oklch(0.985 0.003 250);
+  --border: oklch(0.88 0.01 250);
+  --input: oklch(0.85 0.012 250);
+  --ring: oklch(0.38 0.09 255);
 
-  --status-free: oklch(0.63 0.15 150);
-  --status-locked: oklch(0.78 0.16 75);
-  --status-borrowed: oklch(0.6 0.02 250);
-  --status-mine: oklch(0.55 0.17 252);
+  --status-free: oklch(0.62 0.14 150);
+  --status-locked: oklch(0.79 0.15 80);
+  --status-borrowed: oklch(0.62 0.015 255);
+  --status-mine: oklch(0.55 0.15 250);
 
-  --pitch: oklch(0.3 0.06 160);
-  --pitch-foreground: oklch(0.96 0.02 100);
-  --chalk: oklch(0.985 0.01 95);
-  --terminal: oklch(0.19 0.03 165);
+  --pitch: oklch(0.3 0.07 258);
+  --pitch-foreground: oklch(0.97 0.006 250);
+  --chalk: oklch(0.99 0.003 250);
+  --terminal: oklch(0.2 0.015 255);
   --terminal-foreground: oklch(0.9 0.09 150);
-  --terminal-muted: oklch(0.6 0.04 160);
-  --terminal-line: oklch(0.3 0.04 165);
+  --terminal-muted: oklch(0.62 0.02 255);
+  --terminal-line: oklch(0.32 0.02 255);
 
   --google: oklch(1 0 0);
   --google-foreground: oklch(0.235 0 0);
   --google-border: oklch(0.56 0.004 160);
 
-  --gradient-pitch: linear-gradient(160deg, var(--pitch), oklch(0.24 0.05 165));
-  --shadow-card: 0 1px 0 var(--border), 0 10px 24px -18px oklch(0.21 0.035 160 / 0.45);
-  --shadow-lift: 0 18px 40px -22px oklch(0.21 0.035 160 / 0.6);
+  --gradient-pitch: linear-gradient(180deg, var(--pitch), var(--pitch));
+  --shadow-card: 0 1px 2px oklch(0.22 0.02 255 / 0.08);
+  --shadow-lift: 0 2px 6px oklch(0.22 0.02 255 / 0.12);
 
   --chart-1: oklch(0.63 0.15 150);
   --chart-2: oklch(0.78 0.16 75);
@@ -148,26 +148,16 @@
     -webkit-font-smoothing: antialiased;
   }
   h1,
-  h2,
-  h3 {
+  h2 {
     font-family: var(--font-display);
-    letter-spacing: 0.01em;
   }
 }
 
 @layer components {
-  /* Painted court lines used on the pitch-green panels */
-  .court-lines {
-    background-image:
-      radial-gradient(circle at 50% 50%, transparent 0 22%, oklch(1 0 0 / 0.1) 22.2% 22.8%, transparent 23%),
-      linear-gradient(90deg, transparent calc(50% - 1px), oklch(1 0 0 / 0.1) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
-      var(--gradient-pitch);
-  }
   .locker-tag {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
   }
   .unit-cell {
     height: 0.9rem;

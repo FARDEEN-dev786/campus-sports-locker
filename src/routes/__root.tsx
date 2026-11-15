@@ -80,16 +80,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "LockerRoom — College Sports Equipment Lending" },
+      { title: "Sports Equipment Lending Portal — NSUT" },
       {
         name: "description",
         content:
-          "Borrow college sports equipment with live, semaphore-based locking so no two students grab the same item.",
+          "NSUT students can borrow sports equipment online. Semaphores make sure two students never get the same item.",
       },
-      { property: "og:title", content: "LockerRoom — College Sports Equipment Lending" },
+      { property: "og:title", content: "Sports Equipment Lending Portal — NSUT" },
       {
         property: "og:description",
-        content: "Live sports equipment lending powered by semaphores and process synchronization.",
+        content: "An Operating Systems mini project on process synchronization using semaphores.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -101,7 +101,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Big+Shoulders+Display:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap",
       },
     ],
   }),

@@ -4,6 +4,7 @@ import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-quer
 import { toast } from "sonner";
 import { Hourglass, ShieldAlert } from "lucide-react";
 import { SiteHeader } from "@/components/lending/site-header";
+import { SiteFooter } from "@/components/lending/site-footer";
 import { EquipmentCard } from "@/components/lending/equipment-card";
 import { HoldingsPanel } from "@/components/lending/holdings-panel";
 import { SemaphoreMonitor } from "@/components/lending/semaphore-monitor";
@@ -38,13 +39,15 @@ import {
 export const Route = createFileRoute("/_authenticated/desk")({
   head: () => ({
     meta: [
-      { title: "Lending Desk — LockerRoom" },
+      { title: "Borrow Equipment — Sports Equipment Lending Portal, NSUT" },
       {
         name: "description",
-        content: "Pick, lock and confirm sports equipment in real time. Every unit is guarded by a semaphore.",
+        content: "Select, lock and confirm sports equipment from the NSUT sports room. Every unit is guarded by a semaphore.",
       },
-      { property: "og:title", content: "Lending Desk — LockerRoom" },
+      { property: "og:title", content: "Borrow Equipment — NSUT Sports Room" },
       { property: "og:description", content: "Live sports equipment lending with semaphore locks." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   loader: async ({ context }) => {
@@ -84,7 +87,7 @@ function Desk() {
     if (waitlist.size === 0) return;
     const freed = items.filter((i) => waitlist.has(i.id) && i.available > 0);
     if (freed.length === 0) return;
-    for (const f of freed) toast.success(`${f.icon} ${f.name} is free again — grab it!`);
+    for (const f of freed) toast.success(`${f.icon} ${f.name} is available again.`);
     setWaitlist((w) => {
       const n = new Set(w);
       freed.forEach((f) => n.delete(f.id));
@@ -140,24 +143,23 @@ function Desk() {
   const groups = useMemo(() => groupByCategory(items), [items]);
   const onExpired = useCallback(() => {
     releaseExpired()
-      .then((n) => n > 0 && toast.warning("A 10-minute lock ran out — the item went back to the rack."))
+      .then((n) => n > 0 && toast.warning("Your 10 minutes ran out, so the item was released for others."))
       .finally(refresh);
   }, [refresh]);
 
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <SiteHeader held={mine.length} name={profile?.full_name} />
       {profileFetched && <ProfileDialog uid={uid} profile={profile ?? null} />}
 
-      <main className="mx-auto grid max-w-7xl gap-8 px-4 py-8 lg:grid-cols-[1fr_380px]">
-        <div className="space-y-10">
+      <main className="mx-auto grid w-full max-w-6xl flex-1 gap-8 px-4 py-8 lg:grid-cols-[1fr_360px]">
+        <div className="space-y-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <div className="locker-tag text-muted-foreground">Equipment store · live</div>
-              <h1 className="text-5xl font-black uppercase leading-none">The racks</h1>
+              <h1 className="text-3xl font-bold">Borrow equipment</h1>
               <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-                Selecting an item locks one unit for you for 10 minutes. Everyone else sees it locked
-                instantly. Max 3 items per student.
+                Click Select to lock one unit for 10 minutes. Other students will see it as locked
+                straight away. You can hold up to 3 items.
               </p>
             </div>
             <Legend />
@@ -166,11 +168,11 @@ function Desk() {
           {groups.map(([category, list]) => (
             <section key={category} className="space-y-3">
               <div className="flex items-center gap-3">
-                <h2 className="text-2xl font-extrabold uppercase">{category}</h2>
+                <h2 className="text-lg font-bold">{category}</h2>
                 <div className="h-px flex-1 bg-border" />
-                <span className="locker-tag text-muted-foreground">{list.length} item(s)</span>
+                <span className="text-xs text-muted-foreground">{list.length} item(s)</span>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {list.map((it) => (
                   <EquipmentCard
                     key={it.id}
@@ -182,7 +184,7 @@ function Desk() {
                     onSelect={() => select(it)}
                     onWait={() => {
                       setWaitlist((w) => new Set(w).add(it.id));
-                      toast(`You're waiting for ${it.name}. We'll tell you the moment one is free.`);
+                      toast(`You are now waiting for ${it.name}. We will tell you when one is free.`);
                     }}
                   />
                 ))}
@@ -196,8 +198,8 @@ function Desk() {
             items={items}
             mine={mine}
             busyId={busyId}
-            onRelease={(r) => act(r, releaseItem, "Deselected — the unit is free for others again.")}
-            onReturn={(r) => act(r, returnItem, "Returned — stock count incremented.")}
+            onRelease={(r) => act(r, releaseItem, "Deselected. The item is free for others again.")}
+            onReturn={(r) => act(r, returnItem, "Returned. Available count increased by 1.")}
             onExpired={onExpired}
             onConfirm={async (roll) => {
               try {
@@ -215,6 +217,7 @@ function Desk() {
           <SemaphoreMonitor logs={logs} />
         </aside>
       </main>
+      <SiteFooter />
 
       <Dialog open={!!blocked} onOpenChange={(o) => !o && setBlocked(null)}>
         <DialogContent>
@@ -222,9 +225,9 @@ function Desk() {
             <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-status-locked/25">
               {blocked?.res.status === "race_lost" ? <ShieldAlert /> : <Hourglass />}
             </div>
-            <DialogTitle className="text-2xl uppercase">Item unavailable currently</DialogTitle>
+            <DialogTitle className="text-xl">Item unavailable currently</DialogTitle>
             <DialogDescription>
-              {blocked?.res.message} You have to wait — we'll notify you as soon as a{" "}
+              {blocked?.res.message} You have to wait. We will tell you as soon as a{" "}
               {blocked?.item.name} is released.
             </DialogDescription>
           </DialogHeader>
@@ -232,7 +235,7 @@ function Desk() {
             <div className="rounded-md bg-terminal p-3 font-mono text-xs text-terminal-foreground">
               Level 1 ✓ you saw S = {blocked.res.seen} and entered
               <br />
-              Level 2 ✗ another process entered the critical section first and took the last unit
+              Level 2 ✗ another student entered the critical section first and took the last unit
             </div>
           )}
           <DialogFooter>

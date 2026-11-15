@@ -106,5 +106,5 @@ export function groupByCategory(items: Equipment[]) {
 }
 
 export function lockerCode(item: Equipment) {
-  return `LKR-${String(item.sort_order).padStart(3, "0")}`;
+  return `Item No. ${String(item.sort_order).padStart(2, "0")}`;
 }

@@ -53,19 +53,19 @@ export function HoldingsPanel({
   }, [now, locked, onExpired]);
 
   return (
-    <section className="rounded-lg border bg-card shadow-card">
+    <section className="rounded border bg-card">
       <header className="flex items-center justify-between border-b px-4 py-3">
-        <h2 className="text-lg font-bold uppercase">Your kit bag</h2>
+        <h2 className="text-base font-bold">My items</h2>
         <span className="font-mono text-xs text-muted-foreground">
-          {mine.length}/{MAX_ITEMS_PER_STUDENT} slots
+          {mine.length} of {MAX_ITEMS_PER_STUDENT}
         </span>
       </header>
 
       <div className="space-y-3 p-4">
-        <div className="locker-tag text-muted-foreground">Locked for you · confirm within 10 min</div>
+        <div className="locker-tag">Locked for you (confirm within 10 minutes)</div>
         {locked.length === 0 && (
           <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
-            Nothing locked yet. Pick something from the racks.
+            Nothing selected yet. Choose an item from the list.
           </p>
         )}
         {locked.map((r) => {
@@ -73,7 +73,7 @@ export function HoldingsPanel({
           const ms = remainingMs(r.expires_at, now);
           const urgent = ms < 60_000;
           return (
-            <div key={r.id} className="animate-slide-in rounded-md border border-status-mine/40 bg-status-mine/5 p-3">
+            <div key={r.id} className="rounded border border-status-mine/40 bg-status-mine/5 p-3">
               <div className="flex items-center gap-2">
                 <span className="text-xl">{it?.icon}</span>
                 <span className="flex-1 truncate font-semibold">{it?.name}</span>
@@ -104,12 +104,12 @@ export function HoldingsPanel({
           </Button>
         )}
 
-        <div className="locker-tag pt-2 text-muted-foreground">Borrowed by you</div>
-        {borrowed.length === 0 && <p className="text-sm text-muted-foreground">No items out on loan.</p>}
+        <div className="locker-tag pt-2">Issued to you</div>
+        {borrowed.length === 0 && <p className="text-sm text-muted-foreground">No items issued.</p>}
         {borrowed.map((r) => {
           const it = byId(r.equipment_id);
           return (
-            <div key={r.id} className="flex items-center gap-2 rounded-md border bg-muted/50 p-3">
+            <div key={r.id} className="flex items-center gap-2 rounded border bg-muted/50 p-3">
               <span className="text-xl">{it?.icon}</span>
               <div className="min-w-0 flex-1">
                 <div className="truncate font-semibold">{it?.name}</div>
@@ -131,10 +131,10 @@ export function HoldingsPanel({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-2xl uppercase">Confirm your borrowing</DialogTitle>
+            <DialogTitle className="text-xl">Confirm your borrowing</DialogTitle>
             <DialogDescription>
-              Type your roll number to confirm. If it doesn't match your student card, the
-              confirmation fails and all {locked.length} locked item(s) are released for others.
+              Type your roll number to confirm. If it does not match the roll number on your
+              account, the confirmation fails and all {locked.length} locked item(s) are released.
             </DialogDescription>
           </DialogHeader>
           <ul className="space-y-1 text-sm">
@@ -175,7 +175,7 @@ export function HoldingsPanel({
                 }
               }}
             >
-              {confirming && <Loader2 className="animate-spin" />} Confirm & issue
+              {confirming && <Loader2 className="animate-spin" />} Confirm
             </Button>
           </DialogFooter>
         </DialogContent>

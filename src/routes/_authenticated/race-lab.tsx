@@ -4,6 +4,7 @@ import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-quer
 import { CheckCircle2, Loader2, XCircle, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/lending/site-header";
+import { SiteFooter } from "@/components/lending/site-footer";
 import { SemaphoreMonitor } from "@/components/lending/semaphore-monitor";
 import { UnitBar } from "@/components/lending/unit-bar";
 import { Button } from "@/components/ui/button";
@@ -23,13 +24,15 @@ import {
 export const Route = createFileRoute("/_authenticated/race-lab")({
   head: () => ({
     meta: [
-      { title: "Race Lab — Semaphore Simulator | LockerRoom" },
+      { title: "Semaphore Demo — Sports Equipment Lending Portal, NSUT" },
       {
         name: "description",
-        content: "Fire simultaneous requests from virtual students and watch the two-level semaphore pick the winners.",
+        content: "Send requests from several test students at the same moment and see how the two-level semaphore decides who gets the item.",
       },
-      { property: "og:title", content: "Race Lab — Semaphore Simulator" },
-      { property: "og:description", content: "See the critical section problem solved live." },
+      { property: "og:title", content: "Semaphore Demo — NSUT Sports Equipment Portal" },
+      { property: "og:description", content: "The critical section problem shown live with semaphores." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   loader: async ({ context }) => {
@@ -73,7 +76,7 @@ function RaceLab() {
     if (timer.current) clearInterval(timer.current);
     setReleaseIn(null);
     const n = await releaseSimulation().catch(() => 0);
-    if (n) toast(`Released ${n} simulated lock(s) — signal(S) × ${n}`);
+    if (n) toast(`Released ${n} test lock(s): signal(S) called ${n} time(s)`);
     qc.invalidateQueries({ queryKey: ["equipment"] });
   };
 
@@ -85,7 +88,7 @@ function RaceLab() {
     if (!item) return;
     setRunning(true);
     setSemBefore(item.available);
-    const labels = Array.from({ length: count }, (_, i) => `Sim-Student-${i + 1}`);
+    const labels = Array.from({ length: count }, (_, i) => `Test-Student-${i + 1}`);
     setRacers(labels.map((label) => ({ label })));
     // All requests leave the browser at the same instant — a real race.
     const results = await Promise.all(
@@ -119,34 +122,30 @@ function RaceLab() {
   const losers = racers.filter((r) => r.res && r.res.status !== "acquired").length;
 
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <SiteHeader held={mine.length} name={profile?.full_name} />
-      <section className="court-lines text-pitch-foreground">
-        <div className="mx-auto max-w-7xl px-4 py-10">
-          <div className="locker-tag opacity-70">Race lab · critical section demo</div>
-          <h1 className="mt-1 text-5xl font-black uppercase leading-none md:text-6xl">
-            Many hands, <span className="text-accent">one ball.</span>
-          </h1>
-          <p className="mt-3 max-w-2xl opacity-85">
-            Send requests from several virtual students at exactly the same moment. Everyone who
-            sees a free unit passes <b>Level 1</b>. At <b>Level 2</b> only one process at a time can
-            enter the critical section — whoever gets the mutex first takes the unit; the rest are
-            told the item is unavailable and must wait.
-          </p>
-        </div>
-      </section>
 
-      <main className="mx-auto grid max-w-7xl gap-8 px-4 py-8 lg:grid-cols-[1fr_380px]">
+      <main className="mx-auto grid w-full max-w-6xl flex-1 gap-8 px-4 py-8 lg:grid-cols-[1fr_360px]">
         <div className="space-y-6">
-          <div className="rounded-lg border bg-card p-5 shadow-card">
-            <div className="locker-tag mb-3 text-muted-foreground">1 · Pick the contested item</div>
+          <div>
+            <h1 className="text-3xl font-bold">Semaphore demo</h1>
+            <p className="mt-2 max-w-2xl leading-relaxed text-muted-foreground">
+              This page sends requests from several test students at exactly the same moment, to
+              show the critical section problem. Everyone who sees a free unit passes{" "}
+              <b className="text-foreground">Level 1</b>. At <b className="text-foreground">Level 2</b>{" "}
+              only one request at a time can enter the critical section. Whoever gets the mutex first
+              takes the unit, and the rest are told the item is unavailable and must wait.
+            </p>
+          </div>
+          <div className="rounded border bg-card p-5">
+            <div className="locker-tag mb-3">Step 1: choose the item everyone will try to take</div>
             <div className="flex flex-wrap gap-2">
               {candidates.map((c) => (
                 <button
                   key={c.id}
                   onClick={() => setItemId(c.id)}
                   className={cn(
-                    "flex items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors",
+                    "flex items-center gap-2 rounded border px-3 py-1.5 text-sm transition-colors",
                     c.id === itemId ? "border-primary bg-primary text-primary-foreground" : "hover:bg-muted",
                   )}
                 >
@@ -156,18 +155,18 @@ function RaceLab() {
               ))}
             </div>
 
-            <div className="locker-tag mb-3 mt-6 text-muted-foreground">
-              2 · Virtual students racing: {count}
+            <div className="locker-tag mb-3 mt-6">
+              Step 2: number of test students: {count}
             </div>
             <Slider value={[count]} min={2} max={8} step={1} onValueChange={(v) => setCount(v[0] ?? 5)} className="max-w-sm" />
 
             <div className="mt-6 flex flex-wrap items-center gap-4">
-              <Button variant="hero" size="lg" onClick={fire} disabled={running || !item || releaseIn !== null}>
-                {running ? <Loader2 className="animate-spin" /> : <Zap />} Fire {count} requests at once
+              <Button variant="hero" onClick={fire} disabled={running || !item || releaseIn !== null}>
+                {running ? <Loader2 className="animate-spin" /> : <Zap />} Send {count} requests at once
               </Button>
               {releaseIn !== null && (
                 <Button variant="outline" onClick={release}>
-                  Release simulated locks ({releaseIn}s)
+                  Release test locks ({releaseIn}s)
                 </Button>
               )}
               {item && (
@@ -188,9 +187,9 @@ function RaceLab() {
           </div>
 
           {racers.length > 0 && (
-            <div className="rounded-lg border bg-card p-5 shadow-card">
+            <div className="rounded border bg-card p-5">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="text-2xl font-extrabold uppercase">Race result</h2>
+                <h2 className="text-xl font-bold">Result</h2>
                 {!running && semBefore !== null && (
                   <p className="font-mono text-sm text-muted-foreground">
                     S before = {semBefore} → {winners} got a lock, {losers} must wait
@@ -205,7 +204,7 @@ function RaceLab() {
                     <div
                       key={r.label}
                       className={cn(
-                        "animate-slide-in rounded-md border p-3",
+                        "rounded border p-3",
                         won && "border-status-free bg-status-free/10",
                         r.res && !won && "border-status-locked bg-status-locked/10",
                       )}
@@ -249,6 +248,7 @@ function RaceLab() {
           <SemaphoreMonitor logs={logs} />
         </aside>
       </main>
+      <SiteFooter />
     </div>
   );
 }
