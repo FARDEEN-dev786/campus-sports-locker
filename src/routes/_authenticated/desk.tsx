@@ -227,8 +227,8 @@ function Desk() {
             </div>
             <DialogTitle className="text-xl">Item unavailable currently</DialogTitle>
             <DialogDescription>
-              {blocked?.res.message} You have to wait. We will tell you as soon as a{" "}
-              {blocked?.item.name} is released.
+              {blocked?.res.message} We will tell you as soon as a {blocked?.item.name} is
+              released.
             </DialogDescription>
           </DialogHeader>
           {blocked?.res.status === "race_lost" && (
