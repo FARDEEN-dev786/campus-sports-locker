@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Bell, Link2, Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { lockerCode, type Equipment, type Reservation } from "@/lib/lending";
+import { itemCode, type Equipment, type Reservation } from "@/lib/lending";
 import { selectionBlock } from "@/lib/rules";
 import { UnitBar } from "./unit-bar";
 
@@ -54,7 +54,7 @@ export function EquipmentCard({
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-semibold leading-tight">{item.name}</h3>
-          <div className="text-xs text-muted-foreground">{lockerCode(item)}</div>
+          <div className="text-xs text-muted-foreground">{itemCode(item)}</div>
         </div>
         <div className="text-right">
           <div className="text-2xl font-bold leading-none">{item.available}</div>

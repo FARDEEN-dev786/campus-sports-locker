@@ -1,24 +1,35 @@
-# Campus Sports Locker
+# Sports Equipment Lending Portal — NSUT
 
-okay so for my Operating System mini project i have thought of a sports equipment lending system(webpage). it will use the process synchronization concept using semaphores to deal with multiple users selecting same item at the same time (like in the bookmyshow in which when one user just selects a seat it gets locked and other users cannot select it ,there are two ways by which this lock is removed . first is when the time runs out which is typically 10 minutes and second is when the final confirmation is failed) use the critical section problem concept , semaphores , process synchronization to tackle these type of problems. when someone selects an equipment then immediately in real time on the it shows locked on other users interface . for each user the maximum limit of equipments will be 3. the equipments consists of footballs, basketballs, tennis rackets, shuttle and 5 to 6 more items whatever standard things are there in any college. divide each equipment according to the sports category of it. there will be definite no. of any item. (also someone can only select a shuttle only if he has selected a racket  and make this functionality for other things that are similar to these ). when someone selects an item it gets locked for him for 10 minutes. so only 2 cases will be where this item gets unlocked for others first is when the 10 minutes window is over and second if the person deselect or fails to confirm his borrowing confirmation (keep track of count because if a user selected 1 tennis racket but there were 4 tennis rackets then other user can select 3 tennis rackets because only 1 is locked for now). now if 2 or more users try to click the select button almost simultaneously then do this, make 2 levels of semaphore. on the first level whoever can see the product available can click on it (this is where 2 or more user can select a single item) then on the second level only the first signal that got in will have the right to confirm and other will see "item unavailable currently and you have to wait" something like that on there screen. and also when something is given back to the system then you can increment its count. most important thing about this project is to use the concept of process synchronization and semaphores in it so after making the whole project you will have to also make a report word file in which the project report will be and how the web page operates will also be there
+Operating Systems mini project: **Process Synchronization using Semaphores**.
 
-This project was built with [Lovable](https://lovable.dev).
+Made by Mohd Fardeen, Lakshay and Anjali — Netaji Subhas University of Technology (NSUT), New Delhi.
 
-## Build with Lovable
+## What it does
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/a3d9a43a-cc3c-4987-9303-7ca141fb6cbe).
+Students log in and borrow sports equipment from the college sports room. When a
+student selects an item, one unit is locked for them for 10 minutes and every other
+student sees it as locked straight away. A lock is removed when:
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+- the 10 minutes run out, or
+- the student deselects it, or
+- the final borrow confirmation (roll number check) fails.
 
-## Development
+Rules: maximum 3 items per student; some items need a partner item first
+(for example a shuttlecock needs a badminton racket). Returning an item adds 1
+back to its available count.
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## How semaphores are used
+
+- Each item's **available count** is a counting semaphore `S`.
+- Selecting = `wait(S)` (S - 1). Deselect / timeout / failed confirmation / return = `signal(S)` (S + 1).
+- **Level 1 (entry gate):** anyone who sees `S > 0` may click Select, so several students can get through at once.
+- **Level 2 (critical section):** a mutex (database row lock) lets only one request at a time re-check `S` and take the unit. The first one in wins; the others see "Item unavailable currently — you have to wait".
+
+The "Semaphore demo" page fires many simultaneous requests at one item to show this.
+
+## Run locally
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+npm install
 npm run dev
 ```

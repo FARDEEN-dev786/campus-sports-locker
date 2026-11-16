@@ -105,6 +105,6 @@ export function groupByCategory(items: Equipment[]) {
   return [...map.entries()];
 }
 
-export function lockerCode(item: Equipment) {
+export function itemCode(item: Equipment) {
   return `Item No. ${String(item.sort_order).padStart(2, "0")}`;
 }

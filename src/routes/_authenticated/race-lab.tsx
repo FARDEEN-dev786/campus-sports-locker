@@ -138,7 +138,7 @@ function RaceLab() {
             </p>
           </div>
           <div className="rounded border bg-card p-5">
-            <div className="locker-tag mb-3">Step 1: choose the item everyone will try to take</div>
+            <div className="section-label mb-3">Step 1: choose the item everyone will try to take</div>
             <div className="flex flex-wrap gap-2">
               {candidates.map((c) => (
                 <button
@@ -155,7 +155,7 @@ function RaceLab() {
               ))}
             </div>
 
-            <div className="locker-tag mb-3 mt-6">
+            <div className="section-label mb-3 mt-6">
               Step 2: number of test students: {count}
             </div>
             <Slider value={[count]} min={2} max={8} step={1} onValueChange={(v) => setCount(v[0] ?? 5)} className="max-w-sm" />

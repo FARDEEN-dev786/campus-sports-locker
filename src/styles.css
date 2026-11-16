@@ -154,7 +154,7 @@
 }
 
 @layer components {
-  .locker-tag {
+  .section-label {
     font-size: 0.75rem;
     font-weight: 600;
     color: var(--muted-foreground);

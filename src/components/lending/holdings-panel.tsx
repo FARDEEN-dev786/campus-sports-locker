@@ -62,7 +62,7 @@ export function HoldingsPanel({
       </header>
 
       <div className="space-y-3 p-4">
-        <div className="locker-tag">Locked for you (confirm within 10 minutes)</div>
+        <div className="section-label">Locked for you (confirm within 10 minutes)</div>
         {locked.length === 0 && (
           <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
             Nothing selected yet. Choose an item from the list.
@@ -104,7 +104,7 @@ export function HoldingsPanel({
           </Button>
         )}
 
-        <div className="locker-tag pt-2">Issued to you</div>
+        <div className="section-label pt-2">Issued to you</div>
         {borrowed.length === 0 && <p className="text-sm text-muted-foreground">No items issued.</p>}
         {borrowed.map((r) => {
           const it = byId(r.equipment_id);

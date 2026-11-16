@@ -5,7 +5,7 @@ export function SiteFooter() {
         <p>
           Operating Systems Mini Project — <i>Process Synchronization using Semaphores</i>
         </p>
-        <p className="mt-1">Made by Mohd Fardeen · Netaji Subhas University of Technology (NSUT), New Delhi</p>
+        <p className="mt-1">Made by Mohd Fardeen, Lakshay and Anjali · Netaji Subhas University of Technology (NSUT), New Delhi</p>
       </div>
     </footer>
   );
