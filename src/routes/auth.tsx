@@ -39,6 +39,9 @@ function safePath(p?: string) {
   }
 }
 
+// Shared demo account so teachers / testers can try the portal without signing up.
+const DEMO = { email: "demo.student@nsut.ac.in", password: "DemoStudent@2026", roll: "2025UCS0001" };
+
 function GoogleG() {
   return (
     <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24">
@@ -96,6 +99,13 @@ function AuthPage() {
     if (!data.session) setSent(true);
   }
 
+  async function demoLogin() {
+    setBusy(true);
+    const { error } = await supabase.auth.signInWithPassword({ email: DEMO.email, password: DEMO.password });
+    setBusy(false);
+    if (error) toast.error(error.message);
+  }
+
   async function google() {
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
     if (result.error) toast.error(result.error.message ?? "Google sign-in failed");
@@ -134,6 +144,13 @@ function AuthPage() {
                 <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
                   <div className="h-px flex-1 bg-border" /> or with email <div className="h-px flex-1 bg-border" />
                 </div>
+
+                <Button type="button" variant="outline" className="mb-2 w-full" onClick={demoLogin} disabled={busy}>
+                  Log in as demo student
+                </Button>
+                <p className="mb-4 text-center text-xs text-muted-foreground">
+                  Demo roll number (needed to confirm borrowing): <b>{DEMO.roll}</b>
+                </p>
 
                 <TabsContent value="signin">
                   <form onSubmit={signIn} className="space-y-4">
