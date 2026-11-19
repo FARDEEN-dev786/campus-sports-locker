@@ -15,6 +15,13 @@
       "when": 1794678505025,
       "tag": "0001_fix_log_lock_conflict",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795106491426,
+      "tag": "0002_semaphore_log_owner_scoped",
+      "breakpoints": true
     }
   ]
 }

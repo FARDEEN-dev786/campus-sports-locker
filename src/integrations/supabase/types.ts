@@ -145,6 +145,7 @@ export type Database = {
           level: number | null
           message: string
           op: string
+          owner_id: string | null
           sem_value: number | null
         }
         Insert: {
@@ -156,6 +157,7 @@ export type Database = {
           level?: number | null
           message: string
           op: string
+          owner_id?: string | null
           sem_value?: number | null
         }
         Update: {
@@ -167,6 +169,7 @@ export type Database = {
           level?: number | null
           message?: string
           op?: string
+          owner_id?: string | null
           sem_value?: number | null
         }
         Relationships: []
@@ -178,17 +181,30 @@ export type Database = {
     Functions: {
       _actor_name: { Args: { _uid: string }; Returns: string }
       _cascade: { Args: { _holder: string }; Returns: undefined }
-      _log: {
-        Args: {
-          _actor: string
-          _eq: string
-          _level: number
-          _msg: string
-          _op: string
-          _sem: number
-        }
-        Returns: undefined
-      }
+      _log:
+        | {
+            Args: {
+              _actor: string
+              _eq: string
+              _level: number
+              _msg: string
+              _op: string
+              _sem: number
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              _actor: string
+              _eq: string
+              _level: number
+              _msg: string
+              _op: string
+              _owner: string
+              _sem: number
+            }
+            Returns: undefined
+          }
       _release: {
         Args: { _new_status: string; _rid: string }
         Returns: boolean
